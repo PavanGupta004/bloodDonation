@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "328892331271",
+    "project_id": "sosblooddonation",
+    "storage_bucket": "sosblooddonation.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:328892331271:android:93387ad358c852c98801a2",
+        "android_client_info": {
+          "package_name": "com.example.sos_blood_donation"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA5otd9lJVL7aDQHT_pHgQLxuQvmNs8Be4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
