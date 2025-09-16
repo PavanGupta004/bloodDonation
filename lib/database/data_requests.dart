@@ -136,4 +136,22 @@ class RequestData {
       return [];
     }
   }
+
+  Future<List<Map<String, dynamic>>> fetchAllRequests() async {
+    try {
+      QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collection('requests')
+          .orderBy('requestDateTime', descending: true)
+          .get();
+
+      return snapshot.docs.map((doc) {
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        data['id'] = doc.id; // Add document ID
+        return data;
+      }).toList();
+    } catch (e) {
+      print('Error fetching requests: $e');
+      return [];
+    }
+  }
 }

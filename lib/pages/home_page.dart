@@ -4,6 +4,7 @@ import 'package:curved_labeled_navigation_bar/curved_navigation_bar_item.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:sos_blood_donation/database/update_details.dart';
+import 'package:sos_blood_donation/pages/allRequestList.dart';
 import 'package:sos_blood_donation/pages/sos_request_page.dart';
 import 'package:sos_blood_donation/services/auth_services.dart';
 
@@ -231,160 +232,12 @@ class _HomePageState extends State<HomePage> {
               ),
             ],
           ),
-          const Text(
-            'Urgent SOS Alerts',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-
           // First alert card (not critical)
-          _buildAlertCard(
-            bloodType: 'A+ Blood Needed',
-            hospital: 'City General Hospital',
-            distance: '1.2 km away',
-            isCritical: false,
-          ),
-
-          // Second alert card (not critical)
-          _buildAlertCard(
-            bloodType: 'B- Blood Needed',
-            hospital: 'City General Hospital',
-            distance: '1.2 km away',
-            isCritical: true,
-          ),
+          Container(height: 500, child: RequestsPage()),
         ],
       ),
     );
   }
-
-  // Widget for a single alert card
-  Widget _buildAlertCard({
-    required String bloodType,
-    required String hospital,
-    required String distance,
-    required bool isCritical,
-  }) {
-    // Container to create the red glow effect for critical alerts
-    return Column(
-      children: [
-        const SizedBox(height: 10),
-        Card(
-          elevation: 2,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            // Red border for critical alerts
-            side: BorderSide(
-              color: isCritical ? Colors.red : Colors.transparent,
-              width: 1,
-            ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Row(
-              children: [
-                // Hospital icon on the left
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Icon(
-                    Icons.local_hospital_outlined,
-                    color: Colors.red,
-                    size: 30,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                // Middle section with alert details
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Row for "CRITICAL" and "URGENT" tags
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.red.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: const Text(
-                              'CRITICAL',
-                              style: TextStyle(
-                                color: Colors.red,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.orange.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: const Text(
-                              'URGENT',
-                              style: TextStyle(
-                                color: Colors.orange,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      // Blood type, hospital, and distance text
-                      Text(
-                        bloodType,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                      Text(
-                        hospital,
-                        style: const TextStyle(color: Colors.grey),
-                      ),
-                      Text(
-                        distance,
-                        style: const TextStyle(color: Colors.grey),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 12),
-                // "View Details" button on the right
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
-                  child: const Text('View Details'),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  // Achievements Section
-
-  // Nearby Camps Section
 }
 
 // Unused Widgets 
