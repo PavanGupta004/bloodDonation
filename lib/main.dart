@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: Container(child: Text("hellow world"),),
+      home: Container(child: Text("hellow world")),
     );
   }
 }
