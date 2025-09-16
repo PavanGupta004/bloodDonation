@@ -37,13 +37,30 @@ class _HomePageState extends State<HomePage> {
               _buildHeader(),
               // Builds the "Urgent SOS Alerts" section with cards
               _buildUrgentAlerts(),
-              // Builds the "Nearby Camps" map view
-              _buildNearbyCamps(),
             ],
           ),
         ),
       ),
 
+      // SOS Button
+      floatingActionButton: CircleAvatar(
+        radius: 40,
+        backgroundColor: Colors.red,
+        child: InkWell(
+          onTap: () {
+            // Add your SOS button functionality here
+          },
+          child: const Text(
+            'SOS',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       // Bottom Navigation Bar
     );
   }
@@ -157,7 +174,7 @@ class _HomePageState extends State<HomePage> {
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
 
-          // First alert card (critical)
+          // First alert card (not critical)
           _buildAlertCard(
             bloodType: 'A+ Blood Needed',
             hospital: 'City General Hospital',
@@ -170,7 +187,7 @@ class _HomePageState extends State<HomePage> {
             bloodType: 'B- Blood Needed',
             hospital: 'City General Hospital',
             distance: '1.2 km away',
-            isCritical: false,
+            isCritical: true,
           ),
         ],
       ),
@@ -188,128 +205,114 @@ class _HomePageState extends State<HomePage> {
     return Column(
       children: [
         const SizedBox(height: 10),
-        Container(
-          decoration: BoxDecoration(
-            boxShadow: isCritical
-                ? [
-                    BoxShadow(
-                      color: Colors.red.withOpacity(0.5),
-                      blurRadius: 12.0,
-                      spreadRadius: 2.0,
-                    ),
-                  ]
-                : [],
-          ),
-          // The main card widget
-          child: Card(
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              // Red border for critical alerts
-              side: BorderSide(
-                color: isCritical ? Colors.red : Colors.transparent,
-                width: 2,
-              ),
+        Card(
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            // Red border for critical alerts
+            side: BorderSide(
+              color: isCritical ? Colors.red : Colors.transparent,
+              width: 1,
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Row(
-                children: [
-                  // Hospital icon on the left
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.red.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Icon(
-                      Icons.local_hospital_outlined,
-                      color: Colors.red,
-                      size: 30,
-                    ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Row(
+              children: [
+                // Hospital icon on the left
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  const SizedBox(width: 12),
-                  // Middle section with alert details
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Row for "CRITICAL" and "URGENT" tags
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.red.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: const Text(
-                                'CRITICAL',
-                                style: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                  child: const Icon(
+                    Icons.local_hospital_outlined,
+                    color: Colors.red,
+                    size: 30,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                // Middle section with alert details
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Row for "CRITICAL" and "URGENT" tags
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.red.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const Text(
+                              'CRITICAL',
+                              style: TextStyle(
+                                color: Colors.red,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.orange.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: const Text(
-                                'URGENT',
-                                style: TextStyle(
-                                  color: Colors.orange,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        // Blood type, hospital, and distance text
-                        Text(
-                          bloodType,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
                           ),
-                        ),
-                        Text(
-                          hospital,
-                          style: const TextStyle(color: Colors.grey),
-                        ),
-                        Text(
-                          distance,
-                          style: const TextStyle(color: Colors.grey),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  // "View Details" button on the right
-                  ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.orange.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const Text(
+                              'URGENT',
+                              style: TextStyle(
+                                color: Colors.orange,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    child: const Text('View Details'),
+                      const SizedBox(height: 4),
+                      // Blood type, hospital, and distance text
+                      Text(
+                        bloodType,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      Text(
+                        hospital,
+                        style: const TextStyle(color: Colors.grey),
+                      ),
+                      Text(
+                        distance,
+                        style: const TextStyle(color: Colors.grey),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(width: 12),
+                // "View Details" button on the right
+                ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
+                  child: const Text('View Details'),
+                ),
+              ],
             ),
           ),
         ),
@@ -317,41 +320,56 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // Achievements section
+  // Achievements Section
 
-  // Widget for the "Nearby Camps" section
-  Widget _buildNearbyCamps() {
-    return Padding(
-      padding: const EdgeInsets.all(20.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Section title
-          const Text(
-            'Nearby Camps',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 10),
-          // Card containing the map image
-          Card(
-            clipBehavior: Clip.antiAlias,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: Image.network(
-              'https://i.imgur.com/2nOLqf3.png', // A placeholder map image
-              height: 150,
-              width: double.infinity,
-              fit: BoxFit.cover,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Nearby Camps Section
 }
 
 // Unused Widgets 
+
+  // Box shadow for critical alert cards
+    // decoration: BoxDecoration(
+    //         boxShadow: isCritical
+    //             ? [
+    //                 BoxShadow(
+    //                   color: Colors.red.withOpacity(0.5),
+    //                   // blurRadius: 12.0,
+    //                   spreadRadius: 2.0,
+    //                 ),
+    //               ]
+    //             : [],
+    //       ),
+
+  // Widget for the "Nearby Camps" section
+    // Widget _buildNearbyCamps() {
+    //   return Padding(
+    //     padding: const EdgeInsets.all(20.0),
+    //     child: Column(
+    //       crossAxisAlignment: CrossAxisAlignment.start,
+    //       children: [
+    //         // Section title
+    //         const Text(
+    //           'Nearby Camps',
+    //           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+    //         ),
+    //         const SizedBox(height: 10),
+    //         // Card containing the map image
+    //         Card(
+    //           clipBehavior: Clip.antiAlias,
+    //           shape: RoundedRectangleBorder(
+    //             borderRadius: BorderRadius.circular(15),
+    //           ),
+    //           child: Image.network(
+    //             'https://i.imgur.com/2nOLqf3.png', // A placeholder map image
+    //             height: 150,
+    //             width: double.infinity,
+    //             fit: BoxFit.cover,
+    //           ),
+    //         ),
+    //       ],
+    //     ),
+    //   );
+    // }
 
   // The navigation bar at the bottom of the screen
     // bottomNavigationBar: CurvedNavigationBar(
