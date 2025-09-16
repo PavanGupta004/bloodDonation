@@ -1,44 +1,79 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  String collectionName = '';
 
-  // Sign in with Google
-  Future<User?> createUserWithGoogle() async {
+  /// Create user with email & password and save additional details in Firestore
+  Future<User?> createUserWithEmailAndData({
+    required String email,
+    required String password,
+    required String name,
+    required String dob,
+    required String gender,
+    required String location,
+    required String bloodType,
+    required String phone,
+    required String userType, // Hospital / NGO / Donor
+  }) async {
     try {
-      // Create a GoogleSignIn instance
-      final GoogleSignIn googleSignIn = GoogleSignIn();
+      // Create user in Firebase Authentication
+      UserCredential userCredential = await _auth
+          .createUserWithEmailAndPassword(email: email, password: password);
 
-      // Trigger the authentication flow
-      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-      if (googleUser == null) return null; // user canceled
+      User? user = userCredential.user;
 
-      // Obtain the auth details from the request
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
+      if (user != null) {
+        // Decide collection name based on userType
 
-      // Create a new credential
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
+        if (userType == 'Donor/Requester') {
+          collectionName = 'users';
+        } else {
+          collectionName = userType.toLowerCase();
+        }
+        // hospital, ngo, donor (normalize text)
 
-      // Sign in to Firebase with the credential
-      final UserCredential userCredential = await _auth.signInWithCredential(
-        credential,
-      );
+        // Save user data in the respective collection
+        await _firestore.collection(collectionName).doc(user.uid).set({
+          'uid': user.uid,
+          'email': email,
+          'name': name,
+          'dob': dob,
+          'gender': gender,
+          'location': location,
+          'bloodType': bloodType,
+          'phone': phone,
+          'type': userType,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
 
-      return userCredential.user;
+        return user;
+      }
     } catch (e) {
-      print("Google Sign-In Error: $e");
+      print("Error during registration: $e");
+      rethrow;
+    }
+    return null;
+  }
+
+  /// Sign in existing user
+  Future<User?> signInWithEmail(String email, String password) async {
+    try {
+      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      return userCredential.user;
+    } on FirebaseAuthException catch (e) {
+      print('Firebase Auth Error: ${e.message}');
       return null;
     }
   }
 
-  // Optional: Sign out
+  /// Sign out
   Future<void> signOut() async {
-    await GoogleSignIn().signOut();
     await _auth.signOut();
   }
 }

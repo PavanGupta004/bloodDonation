@@ -1,6 +1,7 @@
 import 'package:curved_labeled_navigation_bar/curved_navigation_bar.dart';
 import 'package:curved_labeled_navigation_bar/curved_navigation_bar_item.dart';
 import 'package:flutter/material.dart';
+import 'package:sos_blood_donation/services/auth_services.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -11,6 +12,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   String username = "User";
+  final AuthService _authService = AuthService();
   int donations = 7;
   int _selectedIndex = 0;
 
@@ -72,6 +74,12 @@ class _HomePageState extends State<HomePage> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    GestureDetector(
+                      onTap: () {
+                        _authService.signOut();
+                      },
+                      child: Icon(Icons.logout),
+                    ),
                     Text(
                       'Hi, $username !',
                       style: TextStyle(

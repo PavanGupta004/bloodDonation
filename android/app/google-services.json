@@ -12,7 +12,20 @@
           "package_name": "com.example.sos_blood_donation"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "328892331271-l0i1i2fvvnnvjej2gblb441aicrhtb6m.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.sos_blood_donation",
+            "certificate_hash": "f4824c1e3fecf8b9dd2aacd1d751023786b5bc97"
+          }
+        },
+        {
+          "client_id": "328892331271-1qilg3fjguqqv7nipe4q1o75gf8amert.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyA5otd9lJVL7aDQHT_pHgQLxuQvmNs8Be4"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "328892331271-1qilg3fjguqqv7nipe4q1o75gf8amert.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

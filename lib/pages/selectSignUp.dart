@@ -1,11 +1,16 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:sos_blood_donation/pages/registerPages/detailFormPage.dart';
 import 'package:sos_blood_donation/pages/registerPages/loginPage.dart';
+import 'package:sos_blood_donation/pages/registerPages/signupPage.dart';
+import 'package:sos_blood_donation/services/auth_services.dart';
 
 class SelectSignUp extends StatelessWidget {
   const SelectSignUp({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final AuthService _authService = AuthService();
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.white,
@@ -16,7 +21,7 @@ class SelectSignUp extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text('LOGO', style: TextStyle(fontSize: 22)),
+              Image.asset('assets/images/mainlogo.png', scale: 2),
               Text(
                 'SOS Blood',
                 style: TextStyle(fontSize: 16, color: Colors.red),
@@ -55,11 +60,10 @@ class SelectSignUp extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute<void>(
-                      builder: (context) => const LoginPage(),
+                      builder: (context) => const SignUpPage(),
                     ),
                   );
                 },
-
                 child: Container(
                   width: MediaQuery.of(context).size.width * 0.70,
                   height: 100,
@@ -69,7 +73,7 @@ class SelectSignUp extends StatelessWidget {
                   ),
                   child: Center(
                     child: Text(
-                      'Sign Up',
+                      'Sign up',
                       style: TextStyle(
                         color: Colors.redAccent,
                         fontWeight: FontWeight.bold,
