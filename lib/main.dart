@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sos_blood_donation/pages/selectSignUp.dart';
 import 'pages/home_page.dart';
+import 'package:sos_blood_donation/pages/home_page.dart';
+import 'package:sos_blood_donation/pages/sos_request_page.dart';
+import 'pages/selectSignUp.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
