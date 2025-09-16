@@ -217,7 +217,7 @@ class _SOSRequestPageState extends State<SOSRequestPage> {
                   border: Border.all(color: Colors.grey.shade300),
                 ),
                 child: TextField(
-                  textAlign: TextAlign.center, // Add this
+                  textAlign: TextAlign.center,
                   onChanged: (value) {
                     setState(() {
                       selectedLocation = value;
@@ -232,7 +232,6 @@ class _SOSRequestPageState extends State<SOSRequestPage> {
                     ),
                     border: InputBorder.none,
                     prefixIcon: const Padding(
-                      // Wrap icon in Padding
                       padding: EdgeInsets.only(left: 15),
                       child: Icon(Icons.location_on, color: Colors.red),
                     ),
@@ -301,10 +300,12 @@ class _SOSRequestPageState extends State<SOSRequestPage> {
                     ),
                     IconButton(
                       icon: const Icon(Icons.add, color: Colors.red),
-                      onPressed: () => setState(() {
-                        quantity++;
-                        print('Quantity increased to: $quantity');
-                      }),
+                      onPressed: () {
+                        setState(() {
+                          quantity++;
+                          print('Quantity increased to: $quantity');
+                        });
+                      },
                     ),
                   ],
                 ),
