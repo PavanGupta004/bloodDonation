@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'SOS Blood Donation',
       theme: ThemeData(primarySwatch: Colors.red),
-      home: SOSViewDetailsPage(),
+      home: HomePage(),
       // StreamBuilder<User?>(
       //   stream: FirebaseAuth.instance.authStateChanges(),
       //   builder: (context, snapshot) {

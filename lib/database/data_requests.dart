@@ -99,7 +99,7 @@ class RequestData {
     try {
       QuerySnapshot snapshot = await _firestore
           .collection('requests')
-          .where('donatedBy', isEqualTo: userUid)
+          .where('donatedBy', arrayContains: userUid)
           .orderBy('requestFulfilledAt', descending: true)
           .get();
 
@@ -152,6 +152,28 @@ class RequestData {
     } catch (e) {
       print('Error fetching requests: $e');
       return [];
+    }
+  }
+
+  Future<void> fulfillRequest(String requestId) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      print("No authenticated user found.");
+      return;
+    }
+
+    try {
+      await FirebaseFirestore.instance
+          .collection('requests')
+          .doc(requestId)
+          .update({
+            'donatedBy': FieldValue.arrayUnion([user.uid]), // list
+            'requestFulfilledAt': FieldValue.serverTimestamp(),
+            'requestFulfilled': true,
+          });
+      print("Request $requestId fulfilled successfully.");
+    } catch (e) {
+      print("Error fulfilling request: $e");
     }
   }
 }

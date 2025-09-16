@@ -3,6 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:math';
 
+import 'package:sos_blood_donation/pages/sos_view_details.dart';
+
 class RequestsPage extends StatefulWidget {
   @override
   State<RequestsPage> createState() => _RequestsPageState();
@@ -240,173 +242,185 @@ class _RequestsPageState extends State<RequestsPage> {
                 request['urgencyLevel'] ?? '',
               );
 
-              return Card(
-                margin: EdgeInsets.only(bottom: 12),
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Stack(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Blood type and patient name
-                          Row(
-                            children: [
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 6,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.red,
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Text(
-                                  request['bloodType'] ?? 'Unknown',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          SOSViewDetailsPage(requestId: request['requestId']),
+                    ),
+                  );
+                },
+                child: Card(
+                  margin: EdgeInsets.only(bottom: 12),
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Stack(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Blood type and patient name
+                            Row(
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.red,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Text(
+                                    request['bloodType'] ?? 'Unknown',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              SizedBox(width: 12),
-                              Expanded(
-                                child: Text(
-                                  username ?? 'Loading...',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w600,
+                                SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    username ?? 'Loading...',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              SizedBox(width: 60), // Space for urgency banner
-                            ],
-                          ),
-                          SizedBox(height: 8),
+                                SizedBox(width: 60), // Space for urgency banner
+                              ],
+                            ),
+                            SizedBox(height: 8),
 
-                          // Distance
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.location_on,
-                                color: Colors.grey[600],
-                                size: 20,
-                              ),
-                              SizedBox(width: 8),
-                              Text(
-                                request['distanceKm'] != null
-                                    ? '${request['distanceKm']!.toStringAsFixed(1)} km away'
-                                    : 'Distance unavailable',
-                                style: TextStyle(fontSize: 16),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 4),
-
-                          // Units needed
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.water_drop,
-                                color: Colors.red[400],
-                                size: 20,
-                              ),
-                              SizedBox(width: 8),
-                              Text(
-                                'Units needed: ${request['quantity'] ?? 1}',
-                                style: TextStyle(fontSize: 16),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 4),
-
-                          // Status
-                          Row(
-                            children: [
-                              Icon(
-                                request['requestFulfilled'] == true
-                                    ? Icons.check_circle
-                                    : Icons.pending,
-                                color: request['requestFulfilled'] == true
-                                    ? Colors.green
-                                    : Colors.orange,
-                                size: 20,
-                              ),
-                              SizedBox(width: 8),
-                              Text(
-                                request['requestFulfilled'] == true
-                                    ? 'Fulfilled'
-                                    : 'Active',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: request['requestFulfilled'] == true
-                                      ? Colors.green
-                                      : Colors.orange,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          // Request time
-                          if (request['requestDateTime'] != null) ...[
-                            SizedBox(height: 4),
+                            // Distance
                             Row(
                               children: [
                                 Icon(
-                                  Icons.access_time,
+                                  Icons.location_on,
                                   color: Colors.grey[600],
                                   size: 20,
                                 ),
                                 SizedBox(width: 8),
                                 Text(
-                                  _getTimeAgo(request['requestDateTime']),
+                                  request['distanceKm'] != null
+                                      ? '${request['distanceKm']!.toStringAsFixed(1)} km away'
+                                      : 'Distance unavailable',
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 4),
+
+                            // Units needed
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.water_drop,
+                                  color: Colors.red[400],
+                                  size: 20,
+                                ),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Units needed: ${request['quantity'] ?? 1}',
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 4),
+
+                            // Status
+                            Row(
+                              children: [
+                                Icon(
+                                  request['requestFulfilled'] == true
+                                      ? Icons.check_circle
+                                      : Icons.pending,
+                                  color: request['requestFulfilled'] == true
+                                      ? Colors.green
+                                      : Colors.orange,
+                                  size: 20,
+                                ),
+                                SizedBox(width: 8),
+                                Text(
+                                  request['requestFulfilled'] == true
+                                      ? 'Fulfilled'
+                                      : 'Active',
                                   style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.grey[600],
+                                    fontSize: 16,
+                                    color: request['requestFulfilled'] == true
+                                        ? Colors.green
+                                        : Colors.orange,
+                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
                               ],
                             ),
-                          ],
-                        ],
-                      ),
-                    ),
 
-                    // Urgency banner on the right side
-                    Positioned(
-                      top: 0,
-                      right: 0,
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 16,
+                            // Request time
+                            if (request['requestDateTime'] != null) ...[
+                              SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.access_time,
+                                    color: Colors.grey[600],
+                                    size: 20,
+                                  ),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    _getTimeAgo(request['requestDateTime']),
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ],
                         ),
-                        decoration: BoxDecoration(
-                          color: urgencyInfo['color'],
-                          borderRadius: BorderRadius.only(
-                            topRight: Radius.circular(12),
-                            bottomLeft: Radius.circular(12),
+                      ),
+
+                      // Urgency banner on the right side
+                      Positioned(
+                        top: 0,
+                        right: 0,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 16,
                           ),
-                        ),
-                        child: RotatedBox(
-                          quarterTurns: -1,
-                          child: Text(
-                            (request['urgencyLevel'] ?? 'Normal').toUpperCase(),
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
+                          decoration: BoxDecoration(
+                            color: urgencyInfo['color'],
+                            borderRadius: BorderRadius.only(
+                              topRight: Radius.circular(12),
+                              bottomLeft: Radius.circular(12),
+                            ),
+                          ),
+                          child: RotatedBox(
+                            quarterTurns: -1,
+                            child: Text(
+                              (request['urgencyLevel'] ?? 'Normal')
+                                  .toUpperCase(),
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               );
             },

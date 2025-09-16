@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:sos_blood_donation/database/update_details.dart';
 import 'package:sos_blood_donation/pages/allRequestList.dart';
+import 'package:sos_blood_donation/pages/history.dart';
 import 'package:sos_blood_donation/pages/sos_request_page.dart';
 import 'package:sos_blood_donation/services/auth_services.dart';
 
@@ -91,8 +92,13 @@ class _HomePageState extends State<HomePage> {
               leading: const Icon(Icons.history),
               title: const Text('History'),
               onTap: () {
-                print('pressed History');
-                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        HistoryPage(), // Navigate to HistoryPage(
+                  ),
+                );
               },
             ),
             ListTile(
