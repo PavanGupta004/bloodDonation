@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SOSViewDetailsPage extends StatefulWidget {
   const SOSViewDetailsPage({super.key});
@@ -15,6 +16,17 @@ class _SOSViewDetailsPageState extends State<SOSViewDetailsPage> {
   final String location = "City General Hospital";
   final String kilometers = "1.2 kms away";
   final String urgencyLevel = "Critical";
+  double latitude = 37.7749; // Example latitude
+  double longitude = 12.4194; // Example longitude
+
+  Future<void> _launchMaps() async {
+    final Uri url = Uri.parse(
+      'https://www.google.com/maps$latitude,$longitude',
+    );
+    if (!await launchUrl(url)) {
+      throw Exception('Could not launch $url');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,6 +84,7 @@ class _SOSViewDetailsPageState extends State<SOSViewDetailsPage> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
+                        _launchMaps();
                         print('Map button pressed');
                       },
                       style: ElevatedButton.styleFrom(
