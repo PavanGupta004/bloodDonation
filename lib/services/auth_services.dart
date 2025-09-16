@@ -1,31 +1,44 @@
-// import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:google_sign_in/google_sign_in.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
-// class AuthService {
-//   final FirebaseAuth _auth = FirebaseAuth.instance;
-//   final GoogleSignIn _googleSignIn = GoogleSignIn();
+class AuthService {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
-//   // Sign in with Google
-//   Future<User?> createUserWithGoogle() async {
-//     try {
-//       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-//       if (googleUser == null) return null; // cancelled
+  // Sign in with Google
+  Future<User?> createUserWithGoogle() async {
+    try {
+      // Create a GoogleSignIn instance
+      final GoogleSignIn googleSignIn = GoogleSignIn();
 
-//       final GoogleSignInAuthentication googleAuth =
-//           await googleUser.authentication;
+      // Trigger the authentication flow
+      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+      if (googleUser == null) return null; // user canceled
 
-//       final credential = GoogleAuthProvider.credential(
-//         accessToken: googleAuth.accessToken,
-//         idToken: googleAuth.idToken,
-//       );
+      // Obtain the auth details from the request
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
 
-//       UserCredential userCredential =
-//           await _auth.signInWithCredential(credential);
+      // Create a new credential
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
 
-//       return userCredential.user;
-//     } catch (e) {
-//       print("Google Sign-In Error: $e");
-//       return null;
-//     }
-//   }
-// }
+      // Sign in to Firebase with the credential
+      final UserCredential userCredential = await _auth.signInWithCredential(
+        credential,
+      );
+
+      return userCredential.user;
+    } catch (e) {
+      print("Google Sign-In Error: $e");
+      return null;
+    }
+  }
+
+  // Optional: Sign out
+  Future<void> signOut() async {
+    await GoogleSignIn().signOut();
+    await _auth.signOut();
+  }
+}
