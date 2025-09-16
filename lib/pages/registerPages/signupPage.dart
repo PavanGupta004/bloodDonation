@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:sos_blood_donation/pages/home_page.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:sos_blood_donation/services/auth_services.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -13,23 +11,20 @@ class SignUpPage extends StatefulWidget {
 
 class _SignUpPageState extends State<SignUpPage> {
   final _formKey = GlobalKey<FormState>();
-  final AuthService _authService = AuthService();
 
-  // Controllers
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _dobController = TextEditingController();
-  final TextEditingController _locationController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController =
-      TextEditingController(); // new
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _locationController = TextEditingController();
 
-  // Dropdown values
   String? _selectedType;
   String? _selectedGender;
   String? _selectedBloodType;
 
-  // Blood type options
+  final List<String> userTypes = ['Hospital', 'NGO', 'Donor/Requester'];
+  final List<String> genders = ['Male', 'Female', 'Other'];
   final List<String> bloodTypes = [
     'A+',
     'A-',
@@ -41,215 +36,248 @@ class _SignUpPageState extends State<SignUpPage> {
     'O-',
   ];
 
-  final List<String> genders = ['Male', 'Female', 'Other'];
-  final List<String> userTypes = ['Hospital', 'NGO', 'Donor/Requester'];
+  final AuthService _authService = AuthService();
+  bool _isLoading = false;
+
+  double? _latitude;
+  double? _longitude;
+
+  Future<void> _fetchLocation() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Location services are disabled.")),
+      );
+      return;
+    }
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Location permissions are denied.")),
+        );
+        return;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Location permissions are permanently denied."),
+        ),
+      );
+      return;
+    }
+
+    Position position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+    setState(() {
+      _latitude = position.latitude;
+      _longitude = position.longitude;
+      _locationController.text = "${position.latitude}, ${position.longitude}";
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Registration Form")),
+      appBar: AppBar(title: const Text("Sign Up")),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                // Type
-                DropdownButtonFormField<String>(
-                  decoration: const InputDecoration(labelText: "Type"),
-                  value: _selectedType,
-                  items: userTypes
-                      .map(
-                        (type) =>
-                            DropdownMenuItem(value: type, child: Text(type)),
-                      )
-                      .toList(),
-                  onChanged: (val) => setState(() => _selectedType = val),
-                  validator: (val) =>
-                      val == null ? "Please select a type" : null,
-                ),
+        padding: const EdgeInsets.all(16),
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : Form(
+                key: _formKey,
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      // User Type
+                      DropdownButtonFormField<String>(
+                        decoration: const InputDecoration(labelText: "Type"),
+                        value: _selectedType,
+                        items: userTypes
+                            .map(
+                              (type) => DropdownMenuItem(
+                                value: type,
+                                child: Text(type),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (val) => setState(() => _selectedType = val),
+                        validator: (val) =>
+                            val == null ? "Please select type" : null,
+                      ),
+                      const SizedBox(height: 10),
 
-                // Name
-                TextFormField(
-                  controller: _nameController,
-                  decoration: const InputDecoration(labelText: "Name"),
-                  validator: (val) {
-                    if (val == null || val.isEmpty) {
-                      return "Name is required";
-                    }
-                    if (val.length < 3) {
-                      return "Name must be at least 3 characters";
-                    }
-                    return null;
-                  },
-                ),
-
-                // DOB
-                TextFormField(
-                  controller: _dobController,
-                  decoration: const InputDecoration(
-                    labelText: "Date of Birth (dd/MM/yyyy)",
-                  ),
-                  readOnly: true,
-                  onTap: () async {
-                    DateTime? pickedDate = await showDatePicker(
-                      context: context,
-                      initialDate: DateTime(2000),
-                      firstDate: DateTime(1900),
-                      lastDate: DateTime.now(),
-                    );
-                    if (pickedDate != null) {
-                      _dobController.text =
-                          "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
-                    }
-                  },
-                  validator: (val) {
-                    if (val == null || val.isEmpty) {
-                      return "Date of Birth is required";
-                    }
-                    return null;
-                  },
-                ),
-
-                // Gender
-                DropdownButtonFormField<String>(
-                  decoration: const InputDecoration(labelText: "Gender"),
-                  value: _selectedGender,
-                  items: genders
-                      .map(
-                        (gender) => DropdownMenuItem(
-                          value: gender,
-                          child: Text(gender),
+                      // Only for Donor/Requester
+                      if (_selectedType == 'Donor/Requester') ...[
+                        TextFormField(
+                          controller: _nameController,
+                          decoration: const InputDecoration(labelText: "Name"),
+                          validator: (val) => val == null || val.isEmpty
+                              ? "Name required"
+                              : null,
                         ),
-                      )
-                      .toList(),
-                  onChanged: (val) => setState(() => _selectedGender = val),
-                  validator: (val) =>
-                      val == null ? "Please select gender" : null,
-                ),
-
-                // Location
-                TextFormField(
-                  controller: _locationController,
-                  decoration: const InputDecoration(labelText: "Location"),
-                  validator: (val) => val == null || val.isEmpty
-                      ? "Location is required"
-                      : null,
-                ),
-
-                // Blood Type
-                DropdownButtonFormField<String>(
-                  decoration: const InputDecoration(labelText: "Blood Type"),
-                  value: _selectedBloodType,
-                  items: bloodTypes
-                      .map(
-                        (blood) =>
-                            DropdownMenuItem(value: blood, child: Text(blood)),
-                      )
-                      .toList(),
-                  onChanged: (val) => setState(() => _selectedBloodType = val),
-                  validator: (val) =>
-                      val == null ? "Please select blood type" : null,
-                ),
-
-                // Phone
-                TextFormField(
-                  controller: _phoneController,
-                  decoration: const InputDecoration(labelText: "Phone Number"),
-                  keyboardType: TextInputType.phone,
-                  validator: (val) {
-                    if (val == null || val.isEmpty) {
-                      return "Phone number is required";
-                    }
-                    if (!RegExp(r'^[0-9]{10}$').hasMatch(val)) {
-                      return "Enter valid 10-digit phone number";
-                    }
-                    return null;
-                  },
-                ),
-
-                // Email
-                TextFormField(
-                  controller: _emailController,
-                  decoration: const InputDecoration(labelText: "Email"),
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (val) {
-                    if (val == null || val.isEmpty) {
-                      return "Email is required";
-                    }
-                    if (!RegExp(
-                      r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                    ).hasMatch(val)) {
-                      return "Enter a valid email address";
-                    }
-                    return null;
-                  },
-                ),
-
-                // Password
-                TextFormField(
-                  controller: _passwordController,
-                  decoration: const InputDecoration(labelText: "Password"),
-                  obscureText: true,
-                  validator: (val) {
-                    if (val == null || val.isEmpty) {
-                      return "Password is required";
-                    }
-                    if (val.length < 6) {
-                      return "Password must be at least 6 characters";
-                    }
-                    return null;
-                  },
-                ),
-
-                const SizedBox(height: 20),
-
-                ElevatedButton(
-                  onPressed: () async {
-                    if (_formKey.currentState!.validate()) {
-                      User? user = await _authService
-                          .createUserWithEmailAndData(
-                            email: _emailController.text.trim(),
-                            password: _passwordController.text.trim(),
-                            userType: _selectedType!,
-                            name: _nameController.text.trim(),
-                            dob: _dobController.text.trim(),
-                            gender: _selectedGender!,
-                            location: _locationController.text.trim(),
-                            bloodType: _selectedBloodType!,
-                            phone: _phoneController.text.trim(),
-                          );
-
-                      if (user != null) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text("Registration Successful ✅"),
+                        const SizedBox(height: 10),
+                        TextFormField(
+                          controller: _dobController,
+                          readOnly: true,
+                          decoration: const InputDecoration(
+                            labelText: "Date of Birth",
                           ),
-                        );
+                          onTap: () async {
+                            DateTime? picked = await showDatePicker(
+                              context: context,
+                              initialDate: DateTime(2000),
+                              firstDate: DateTime(1900),
+                              lastDate: DateTime.now(),
+                            );
+                            if (picked != null) {
+                              _dobController.text =
+                                  "${picked.day}/${picked.month}/${picked.year}";
+                            }
+                          },
+                          validator: (val) => val == null || val.isEmpty
+                              ? "DOB required"
+                              : null,
+                        ),
+                        const SizedBox(height: 10),
+                        DropdownButtonFormField<String>(
+                          decoration: const InputDecoration(
+                            labelText: "Gender",
+                          ),
+                          value: _selectedGender,
+                          items: genders
+                              .map(
+                                (g) =>
+                                    DropdownMenuItem(value: g, child: Text(g)),
+                              )
+                              .toList(),
+                          onChanged: (val) =>
+                              setState(() => _selectedGender = val),
+                          validator: (val) =>
+                              val == null ? "Gender required" : null,
+                        ),
+                        const SizedBox(height: 10),
+                        DropdownButtonFormField<String>(
+                          decoration: const InputDecoration(
+                            labelText: "Blood Type",
+                          ),
+                          value: _selectedBloodType,
+                          items: bloodTypes
+                              .map(
+                                (b) =>
+                                    DropdownMenuItem(value: b, child: Text(b)),
+                              )
+                              .toList(),
+                          onChanged: (val) =>
+                              setState(() => _selectedBloodType = val),
+                          validator: (val) =>
+                              val == null ? "Blood type required" : null,
+                        ),
+                        const SizedBox(height: 10),
+                      ],
 
-                        // Navigate to HomePage or dashboard
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const HomePage(),
+                      // Common fields
+                      TextFormField(
+                        controller: _phoneController,
+                        keyboardType: TextInputType.phone,
+                        decoration: const InputDecoration(labelText: "Phone"),
+                        validator: (val) => val == null || val.isEmpty
+                            ? "Phone required"
+                            : null,
+                      ),
+                      const SizedBox(height: 10),
+                      TextFormField(
+                        controller: _emailController,
+                        keyboardType: TextInputType.emailAddress,
+                        decoration: const InputDecoration(labelText: "Email"),
+                        validator: (val) => val == null || val.isEmpty
+                            ? "Email required"
+                            : null,
+                      ),
+                      const SizedBox(height: 10),
+                      TextFormField(
+                        controller: _passwordController,
+                        obscureText: true,
+                        decoration: const InputDecoration(
+                          labelText: "Password",
+                        ),
+                        validator: (val) => val == null || val.isEmpty
+                            ? "Password required"
+                            : null,
+                      ),
+                      const SizedBox(height: 10),
+                      TextFormField(
+                        controller: _locationController,
+                        readOnly: true,
+                        decoration: InputDecoration(
+                          labelText: "Location",
+                          suffixIcon: IconButton(
+                            icon: const Icon(Icons.my_location),
+                            onPressed: _fetchLocation,
                           ),
-                        );
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text("Registration failed. Try again."),
-                          ),
-                        );
-                      }
-                    }
-                  },
-                  child: const Text("Sign Up"),
+                        ),
+                        validator: (val) => val == null || val.isEmpty
+                            ? "Location required"
+                            : null,
+                      ),
+                      const SizedBox(height: 20),
+
+                      ElevatedButton(
+                        onPressed: () async {
+                          if (_formKey.currentState!.validate()) {
+                            if (_latitude == null || _longitude == null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("Fetch your location"),
+                                ),
+                              );
+                              return;
+                            }
+                            setState(() => _isLoading = true);
+
+                            final user = await _authService
+                                .createUserWithEmailAndData(
+                                  email: _emailController.text.trim(),
+                                  password: _passwordController.text.trim(),
+                                  name: _nameController.text.trim(),
+                                  dob: _dobController.text.trim(),
+                                  gender: _selectedGender ?? "",
+                                  bloodType: _selectedBloodType ?? "",
+                                  phone: _phoneController.text.trim(),
+                                  type: _selectedType ?? "",
+                                  latitude: _latitude!,
+                                  longitude: _longitude!,
+                                );
+
+                            setState(() => _isLoading = false);
+
+                            if (user != null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("Registration Successful ✅"),
+                                ),
+                              );
+                              // Navigate to HomePage
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("Registration Failed ❌"),
+                                ),
+                              );
+                            }
+                          }
+                        },
+                        child: const Text("Sign Up"),
+                      ),
+                    ],
+                  ),
                 ),
-              ],
-            ),
-          ),
-        ),
+              ),
       ),
     );
   }

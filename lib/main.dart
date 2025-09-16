@@ -27,38 +27,21 @@ class MyApp extends StatelessWidget {
 }
 
 /// This widget decides which page to show based on auth state
-class AuthWrapper extends StatefulWidget {
-  const AuthWrapper({super.key});
-
-  @override
-  State<AuthWrapper> createState() => _AuthWrapperState();
-}
-
-class _AuthWrapperState extends State<AuthWrapper> {
-  User? _user;
-
-  @override
-  void initState() {
-    super.initState();
-    _checkUserLoggedIn();
-  }
-
-  void _checkUserLoggedIn() {
-    final user = FirebaseAuth.instance.currentUser;
-    setState(() {
-      _user = user;
-    });
-  }
-
+class AuthWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // While checking, show loading indicator
-    if (_user == null) {
-      // Not logged in → show SignUp/Login selection page
-      return const SelectSignUp();
-    } else {
-      // Logged in → push to HomePage
-      return const HomePage();
-    }
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(), // 🔥 listens live
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasData) {
+          return const HomePage(); // logged in
+        } else {
+          return const SelectSignUp(); // not logged in
+        }
+      },
+    );
   }
 }
