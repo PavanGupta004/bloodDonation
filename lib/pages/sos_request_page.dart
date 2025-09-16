@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:sos_blood_donation/database/data_requests.dart';
 import 'package:sos_blood_donation/database/donor_service.dart';
+import 'package:sos_blood_donation/services/sms_service.dart';
 
 class SOSRequestPage extends StatefulWidget {
   const SOSRequestPage({super.key});
@@ -135,14 +136,25 @@ class _SOSRequestPageState extends State<SOSRequestPage> {
             "📍 Donor: ${donor['name']} | ${donor['distanceKm'].toStringAsFixed(2)} km | Phone: ${donor['phone']}",
           );
 
-          // 3️⃣ Example: open SMS app (needs url_launcher)
-          // await launchUrl(Uri.parse(
-          //   "sms:${donor['phone']}?body=Urgent! Blood $selectedBloodGroup needed at $_locationController.text. Please help if possible.",
-          // ));
+          String phoneNo = '+91${donor['phone']}';
+
+          // Send SMS to donor
+          bool success = await SMSService.sendSMS(
+            phoneNo,
+            'Urgent blood donation needed! Type: $selectedBloodGroup. Distance: ${donor['distanceKm'].toStringAsFixed(1)} km from you. Contact immediately if available.',
+          );
+
+          if (success) {
+            print("✅ SMS sent to ${donor['name']}");
+          } else {
+            print("❌ Failed to send SMS to ${donor['name']}");
+          }
         }
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${donors.length} nearby donors found')),
+          SnackBar(
+            content: Text('${donors.length} nearby donors found and notified'),
+          ),
         );
       }
 
