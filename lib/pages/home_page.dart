@@ -1,6 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:curved_labeled_navigation_bar/curved_navigation_bar.dart';
 import 'package:curved_labeled_navigation_bar/curved_navigation_bar_item.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:sos_blood_donation/database/update_details.dart';
 import 'package:sos_blood_donation/services/auth_services.dart';
 
 class HomePage extends StatefulWidget {
@@ -13,13 +16,49 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   String username = "User";
   final AuthService _authService = AuthService();
+  bool isAvailable = false;
+  final UpdateData _updateData = UpdateData();
+
   int donations = 7;
   int _selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchCurrentStatus();
+  }
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
+  }
+
+  void _fetchCurrentStatus() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final doc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .get();
+    setState(() {
+      isAvailable = doc.data()?['isAvailableForDonating'] ?? false;
+    });
+  }
+
+  void _toggleAvailability() async {
+    await _updateData.toggleDonorAvailability();
+    _fetchCurrentStatus(); // refresh the button
+  }
+
+  void _toggleSwitch(bool value) async {
+    setState(() {
+      isAvailable = value;
+    });
+
+    // Call your Firestore toggle method
+    await _updateData.toggleDonorAvailability(); // your method
   }
 
   @override
@@ -28,19 +67,17 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       // Makes the content scrollable to prevent overflow on smaller screens
-      body: Expanded(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Builds the top red header section
-              _buildHeader(),
-              // Builds the "Urgent SOS Alerts" section with cards
-              _buildUrgentAlerts(),
-              // Builds the "Nearby Camps" map view
-              _buildNearbyCamps(),
-            ],
-          ),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Builds the top red header section
+            _buildHeader(),
+            // Builds the "Urgent SOS Alerts" section with cards
+            _buildUrgentAlerts(),
+            // Builds the "Nearby Camps" map view
+            _buildNearbyCamps(),
+          ],
         ),
       ),
 
@@ -140,6 +177,8 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ),
+
+        //Toggle button here
       ],
     );
   }
@@ -152,6 +191,31 @@ class _HomePageState extends State<HomePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Section title
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                'Available for Blood Donation?',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text("Not Available"),
+                  SizedBox(width: 5),
+                  Switch(
+                    value: isAvailable,
+                    onChanged: _toggleSwitch,
+                    activeColor: Colors.redAccent,
+                    inactiveThumbColor: Colors.grey,
+                    inactiveTrackColor: Colors.grey.shade300,
+                  ),
+                  SizedBox(width: 5),
+                  const Text("Available"),
+                ],
+              ),
+            ],
+          ),
           const Text(
             'Urgent SOS Alerts',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),

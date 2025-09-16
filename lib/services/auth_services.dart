@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:geolocator/geolocator.dart';
 
 class AuthService {
@@ -34,6 +35,7 @@ class AuthService {
       if (type == 'Donor/Requester') {
         collectionName = 'users';
         data = {
+          "uid": user.uid,
           "name": name,
           "dob": dob,
           "gender": gender,
@@ -43,11 +45,12 @@ class AuthService {
           "location": GeoPoint(latitude, longitude),
           "createdAt": FieldValue.serverTimestamp(),
           "type": type,
-          "isAvailable": true,
+          "isAvailableForDonating": true,
         };
       } else if (type == 'Hospital') {
         collectionName = 'hospital';
         data = {
+          "hospitalId": user.uid,
           "name": name,
           "phone": phone,
           "email": email,
@@ -58,6 +61,7 @@ class AuthService {
       } else if (type == 'NGO') {
         collectionName = 'ngo';
         data = {
+          "ngo": user.uid,
           "name": name,
           "phone": phone,
           "email": email,
@@ -78,10 +82,33 @@ class AuthService {
     }
   }
 
-  Future<void> singInUser() async {}
+  Future<User?> signInUser({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      return userCredential.user;
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        print("No user found for that email.");
+      } else if (e.code == 'wrong-password') {
+        print("Wrong password provided.");
+      } else {
+        print("FirebaseAuthException: ${e.code} - ${e.message}");
+      }
+      return null;
+    } catch (e) {
+      print("Error signing in: $e");
+      return null;
+    }
+  }
 
   Future<void> signOut() async {
-    await _auth.signOut();
+    await FirebaseAuth.instance.signOut();
   }
 
   // Check if user logged in

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:sos_blood_donation/pages/home_page.dart';
 import 'package:sos_blood_donation/services/auth_services.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -229,6 +230,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
                       ElevatedButton(
                         onPressed: () async {
+                          CircularProgressIndicator();
                           if (_formKey.currentState!.validate()) {
                             if (_latitude == null || _longitude == null) {
                               ScaffoldMessenger.of(context).showSnackBar(
@@ -255,6 +257,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                 );
 
                             setState(() => _isLoading = false);
+                            Navigator.pop(context);
 
                             if (user != null) {
                               ScaffoldMessenger.of(context).showSnackBar(
@@ -262,6 +265,13 @@ class _SignUpPageState extends State<SignUpPage> {
                                   content: Text("Registration Successful ✅"),
                                 ),
                               );
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const HomePage(),
+                                ),
+                              );
+
                               // Navigate to HomePage
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
