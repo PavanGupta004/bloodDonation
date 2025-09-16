@@ -23,11 +23,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-<<<<<<< HEAD
-      home: SelectSignUp(),
-=======
       home: HomePage(),
->>>>>>> e3bcaaaa80c1ffa884eda07a49fa365de032fb9c
     );
   }
 }
