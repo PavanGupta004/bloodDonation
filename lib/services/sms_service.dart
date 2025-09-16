@@ -1,10 +1,12 @@
+// lib/services/sms_service.dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class SMSService {
-  static const String accountSid = 'AC49a9b7e956a596ce983ec2f496d7b082';
-  static const String authToken = '3e7e62e89751d07c03a89181f16ed0ac';
-  static const String fromNumber = '+17178836643';
+  static String get accountSid => dotenv.env['TWILIO_ACCOUNT_SID']!;
+  static String get authToken => dotenv.env['TWILIO_AUTH_TOKEN']!;
+  static String get fromNumber => dotenv.env['TWILIO_FROM_NUMBER']!;
 
   static Future<bool> sendSMS(String toNumber, String message) async {
     try {

@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:sos_blood_donation/pages/selectSignUp.dart';
 import 'package:sos_blood_donation/pages/sos_view_details.dart';
 import 'pages/home_page.dart';
@@ -8,8 +9,9 @@ import 'package:sos_blood_donation/pages/home_page.dart';
 import 'package:sos_blood_donation/pages/sos_request_page.dart';
 import 'pages/selectSignUp.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
   await Firebase.initializeApp();
   runApp(const MyApp());
 }
