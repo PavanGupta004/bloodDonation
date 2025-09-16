@@ -8,6 +8,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  String username = "User";
+  int livesImpacted = 7;
   int _selectedIndex = 0;
 
   void _onItemTapped(int index) {
@@ -18,19 +20,26 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    // The main layout structure of the page
     return Scaffold(
       backgroundColor: Colors.grey[100],
+      // Makes the content scrollable to prevent overflow on smaller screens
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Builds the top red header section
             _buildHeader(),
+            // Builds the "Urgent SOS Alerts" section with cards
             _buildUrgentAlerts(),
+            // Builds the "Achievements" horizontal list
             _buildAchievements(),
+            // Builds the "Nearby Camps" map view
             _buildNearbyCamps(),
           ],
         ),
       ),
+      // The navigation bar at the bottom of the screen
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
@@ -61,13 +70,17 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  // Widget for the top red header section
   Widget _buildHeader() {
+    // Stack allows layering widgets on top of each other (e.g., Quick Donate button over the header)
     return Stack(
-      clipBehavior: Clip.none,
+      clipBehavior: Clip
+          .none, // Allows the "Quick Donate" button to overflow the red container
       alignment: Alignment.topCenter,
       children: [
+        // The main red background container
         Container(
-          height: 220,
+          height: 260,
           decoration: const BoxDecoration(
             color: Colors.red,
             borderRadius: BorderRadius.only(
@@ -79,15 +92,17 @@ class _HomePageState extends State<HomePage> {
             padding: const EdgeInsets.fromLTRB(20, 50, 20, 20),
             child: Column(
               children: [
+                // Top row containing greeting, SOS Redline, and profile icon
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Column(
+                    // "Hi, User!" and "Next Eligibility" text
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Hi, Anya!',
+                          'Hi, $username !',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 24,
@@ -100,6 +115,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ],
                     ),
+                    // SOS Redline and Profile icon with notification dot
                     Row(
                       children: [
                         const Column(
@@ -122,6 +138,7 @@ class _HomePageState extends State<HomePage> {
                               color: Colors.white,
                               size: 30,
                             ),
+                            // Notification dot on the profile icon
                             Positioned(
                               right: 0,
                               top: 0,
@@ -144,25 +161,26 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
                 const SizedBox(height: 20),
-                const Row(
+                // "Your Impact" section
+                Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        const Text(
                           'Your Impact',
                           style: TextStyle(color: Colors.white70, fontSize: 16),
                         ),
                         Text(
-                          '7',
+                          livesImpacted.toString(),
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 48,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        Text(
+                        const Text(
                           'Lives Impacted',
                           style: TextStyle(color: Colors.white, fontSize: 16),
                         ),
@@ -174,6 +192,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ),
+        // The circular "Quick Donate" button positioned over the header
         Positioned(
           top: 110,
           right: 30,
@@ -211,17 +230,20 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  // Widget for the "Urgent SOS Alerts" section
   Widget _buildUrgentAlerts() {
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Section title
           const Text(
             'Urgent SOS Alerts',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 10),
+          // First alert card (critical)
           _buildAlertCard(
             bloodType: 'A+ Blood Needed',
             hospital: 'City General Hospital',
@@ -229,6 +251,7 @@ class _HomePageState extends State<HomePage> {
             isCritical: true,
           ),
           const SizedBox(height: 10),
+          // Second alert card (not critical)
           _buildAlertCard(
             bloodType: 'B- Blood Needed',
             hospital: 'City General Hospital',
@@ -240,12 +263,14 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  // Widget for a single alert card
   Widget _buildAlertCard({
     required String bloodType,
     required String hospital,
     required String distance,
     required bool isCritical,
   }) {
+    // Container to create the red glow effect for critical alerts
     return Container(
       decoration: BoxDecoration(
         boxShadow: isCritical
@@ -258,10 +283,12 @@ class _HomePageState extends State<HomePage> {
               ]
             : [],
       ),
+      // The main card widget
       child: Card(
         elevation: 2,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
+          // Red border for critical alerts
           side: BorderSide(
             color: isCritical ? Colors.red : Colors.transparent,
             width: 2,
@@ -271,6 +298,7 @@ class _HomePageState extends State<HomePage> {
           padding: const EdgeInsets.all(12.0),
           child: Row(
             children: [
+              // Hospital icon on the left
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
@@ -284,10 +312,12 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               const SizedBox(width: 12),
+              // Middle section with alert details
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Row for "CRITICAL" and "URGENT" tags
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -330,6 +360,7 @@ class _HomePageState extends State<HomePage> {
                       ],
                     ),
                     const SizedBox(height: 4),
+                    // Blood type, hospital, and distance text
                     Text(
                       bloodType,
                       style: const TextStyle(
@@ -343,6 +374,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               const SizedBox(width: 12),
+              // "View Details" button on the right
               ElevatedButton(
                 onPressed: () {},
                 style: ElevatedButton.styleFrom(
@@ -360,17 +392,20 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  // Widget for the "Achievements" section
   Widget _buildAchievements() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Section title
           const Text(
             'Achievements',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 10),
+          // Horizontally scrollable list of achievements
           SizedBox(
             height: 100,
             child: ListView(
@@ -408,6 +443,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  // Widget for a single achievement item
   Widget _buildAchievementItem(
     IconData icon,
     String label,
@@ -419,6 +455,7 @@ class _HomePageState extends State<HomePage> {
       margin: const EdgeInsets.only(right: 10),
       child: Column(
         children: [
+          // Circular avatar for the achievement
           CircleAvatar(
             radius: 25,
             backgroundColor: color.withOpacity(0.2),
@@ -432,6 +469,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           const SizedBox(height: 5),
+          // Text label below the avatar
           Text(
             subLabel,
             textAlign: TextAlign.center,
@@ -442,17 +480,20 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  // Widget for the "Nearby Camps" section
   Widget _buildNearbyCamps() {
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Section title
           const Text(
             'Nearby Camps',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 10),
+          // Card containing the map image
           Card(
             clipBehavior: Clip.antiAlias,
             shape: RoundedRectangleBorder(
