@@ -65,8 +65,56 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // The main layout structure of the page
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.red,
+        elevation: 0,
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu, color: Colors.white),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
+        ),
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            const DrawerHeader(
+              decoration: BoxDecoration(color: Colors.red),
+              child: Text(
+                'Menu',
+                style: TextStyle(color: Colors.white, fontSize: 24),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.history),
+              title: const Text('History'),
+              onTap: () {
+                print('pressed History');
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.request_page),
+              title: const Text('Current Request'),
+              onTap: () {
+                print('pressed Current Request');
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('Logout'),
+              onTap: () {
+                print('pressed Logout');
+                _authService.signOut();
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+      ),
       backgroundColor: Colors.grey[100],
       // Makes the content scrollable to prevent overflow on smaller screens
       body: SingleChildScrollView(
@@ -112,15 +160,12 @@ class _HomePageState extends State<HomePage> {
 
   // Widget for the top red header section
   Widget _buildHeader() {
-    // Stack allows layering widgets on top of each other (e.g., Quick Donate button over the header)
     return Stack(
-      clipBehavior: Clip
-          .none, // Allows the "Quick Donate" button to overflow the red container
+      clipBehavior: Clip.none,
       alignment: Alignment.topCenter,
       children: [
-        // The main red background container
         Container(
-          height: 225,
+          height: 150,
           decoration: const BoxDecoration(
             color: Colors.red,
             borderRadius: BorderRadius.only(
@@ -129,81 +174,27 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 50, 20, 20),
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisAlignment:
+                  MainAxisAlignment.spaceAround, // Changed to end
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        _authService.signOut();
-                      },
-                      child: Icon(Icons.logout),
-                    ),
-                    Text(
-                      'Hi, $username !',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const Text(
-                      'Your Donations',
-                      style: TextStyle(color: Colors.white70, fontSize: 16),
-                    ),
-                    Text(
-                      donations.toString(),
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 48,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-        // The circular "Quick Donate" button positioned over the header
-        Positioned(
-          top: 70,
-          right: 30,
-          child: Container(
-            width: 110,
-            height: 110,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.3),
-                  spreadRadius: 1,
-                  blurRadius: 5,
-                ),
-              ],
-            ),
-            child: const Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.add, color: Colors.red, size: 40),
                 Text(
-                  'Quick Donate',
-                  style: TextStyle(
-                    color: Colors.red,
+                  'Hi, $username !',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    fontSize: 10,
                   ),
                 ),
+                Text(
+                  'Your Donations $donations',
+                  style: TextStyle(color: Colors.white70, fontSize: 16),
+                ),
               ],
             ),
           ),
         ),
-
-        //Toggle button here
       ],
     );
   }
@@ -248,3 +239,204 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
+
+// Unused Widgets 
+
+  // The circular "Quick Donate" button positioned over the header
+    // Positioned(
+    //   top: 70,
+    //   right: 30,
+    //   child: Container(
+    //     width: 110,
+    //     height: 110,
+    //     decoration: BoxDecoration(
+    //       color: Colors.white,
+    //       shape: BoxShape.circle,
+    //       boxShadow: [
+    //         BoxShadow(
+    //           color: Colors.black.withOpacity(0.3),
+    //           spreadRadius: 1,
+    //           blurRadius: 5,
+    //         ),
+    //       ],
+    //     ),
+    //     child: const Column(
+    //       mainAxisAlignment: MainAxisAlignment.center,
+    //       children: [
+    //         Icon(Icons.add, color: Colors.red, size: 40),
+    //         Text(
+    //           'Quick Donate',
+    //           style: TextStyle(
+    //             color: Colors.red,
+    //             fontWeight: FontWeight.bold,
+    //             fontSize: 10,
+    //           ),
+    //         ),
+    //       ],
+    //     ),
+    //   ),
+    // ),
+
+  // Box shadow for critical alert cards
+    // decoration: BoxDecoration(
+    //         boxShadow: isCritical
+    //             ? [
+    //                 BoxShadow(
+    //                   color: Colors.red.withOpacity(0.5),
+    //                   // blurRadius: 12.0,
+    //                   spreadRadius: 2.0,
+    //                 ),
+    //               ]
+    //             : [],
+    //       ),
+
+  // Widget for the "Nearby Camps" section
+    // Widget _buildNearbyCamps() {
+    //   return Padding(
+    //     padding: const EdgeInsets.all(20.0),
+    //     child: Column(
+    //       crossAxisAlignment: CrossAxisAlignment.start,
+    //       children: [
+    //         // Section title
+    //         const Text(
+    //           'Nearby Camps',
+    //           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+    //         ),
+    //         const SizedBox(height: 10),
+    //         // Card containing the map image
+    //         Card(
+    //           clipBehavior: Clip.antiAlias,
+    //           shape: RoundedRectangleBorder(
+    //             borderRadius: BorderRadius.circular(15),
+    //           ),
+    //           child: Image.network(
+    //             'https://i.imgur.com/2nOLqf3.png', // A placeholder map image
+    //             height: 150,
+    //             width: double.infinity,
+    //             fit: BoxFit.cover,
+    //           ),
+    //         ),
+    //       ],
+    //     ),
+    //   );
+    // }
+
+  // The navigation bar at the bottom of the screen
+    // bottomNavigationBar: CurvedNavigationBar(
+    //   backgroundColor: Colors.transparent,
+    //   buttonBackgroundColor: Colors.red,
+    //   color: Colors.grey.shade300,
+    //   items: const [
+    //     CurvedNavigationBarItem(
+    //       child: Icon(Icons.home_outlined),
+    //       label: 'Home',
+    //     ),
+    //     CurvedNavigationBarItem(
+    //       child: Icon(Icons.notifications_outlined),
+    //       label: 'Alerts',
+    //     ),
+    //     CurvedNavigationBarItem(
+    //       child: Icon(Icons.people_outline),
+    //       label: 'Camps',
+    //     ),
+    //     CurvedNavigationBarItem(
+    //       child: Icon(Icons.chat_bubble_outline),
+    //       label: 'Chat',
+    //     ),
+    //     CurvedNavigationBarItem(
+    //       child: Icon(Icons.science_outlined),
+    //       label: 'Profile/Impact',
+    //     ),
+    //   ],
+    //   onTap: _onItemTapped,
+    //   index: _selectedIndex,
+    // )
+
+  // Widget for the "Achievements" section
+    // Widget _buildAchievements() {
+    //   return Padding(
+    //     padding: const EdgeInsets.symmetric(horizontal: 20.0),
+    //     child: Column(
+    //       crossAxisAlignment: CrossAxisAlignment.start,
+    //       children: [
+    //         // Section title
+    //         const Text(
+    //           'Achievements',
+    //           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+    //         ),
+    //         const SizedBox(height: 10),
+    //         // Horizontally scrollable list of achievements
+    //         SizedBox(
+    //           height: 100,
+    //           child: ListView(
+    //             scrollDirection: Axis.horizontal,
+    //             children: [
+    //               _buildAchievementItem(
+    //                 Icons.bloodtype,
+    //                 '3',
+    //                 '3 Donations',
+    //                 Colors.brown,
+    //               ),
+    //               _buildAchievementItem(
+    //                 Icons.star,
+    //                 'First',
+    //                 'First Responder',
+    //                 Colors.red,
+    //               ),
+    //               _buildAchievementItem(
+    //                 Icons.shield,
+    //                 '5',
+    //                 '5 Donations',
+    //                 Colors.blueGrey,
+    //               ),
+    //               _buildAchievementItem(
+    //                 Icons.healing,
+    //                 '',
+    //                 'Life Saver',
+    //                 Colors.grey,
+    //               ),
+    //             ],
+    //           ),
+    //         ),
+    //       ],
+    //     ),
+    //   );
+    // }
+
+  // Widget for a single achievement item
+    // Widget _buildAchievementItem(
+    //   IconData icon,
+    //   String label,
+    //   String subLabel,
+    //   Color color,
+    // ) {
+    //   return Container(
+    //     width: 100,
+    //     margin: const EdgeInsets.only(right: 10),
+    //     child: Column(
+    //       children: [
+    //         // Circular avatar for the achievement
+    //         CircleAvatar(
+    //           radius: 25,
+    //           backgroundColor: color.withOpacity(0.2),
+    //           child: Text(
+    //             label,
+    //             style: TextStyle(
+    //               color: color,
+    //               fontWeight: FontWeight.bold,
+    //               fontSize: 18,
+    //             ),
+    //           ),
+    //         ),
+    //         const SizedBox(height: 5),
+    //         // Text label below the avatar
+    //         Text(
+    //           subLabel,
+    //           textAlign: TextAlign.center,
+    //           style: const TextStyle(fontSize: 12),
+    //         ),
+    //       ],
+    //     ),
+    //   );
+    // }
+
