@@ -64,8 +64,56 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // The main layout structure of the page
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.red,
+        elevation: 0,
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu, color: Colors.white),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
+        ),
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            const DrawerHeader(
+              decoration: BoxDecoration(color: Colors.red),
+              child: Text(
+                'Menu',
+                style: TextStyle(color: Colors.white, fontSize: 24),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.history),
+              title: const Text('History'),
+              onTap: () {
+                print('pressed History');
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.request_page),
+              title: const Text('Current Request'),
+              onTap: () {
+                print('pressed Current Request');
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('Logout'),
+              onTap: () {
+                print('pressed Logout');
+                _authService.signOut();
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+      ),
       backgroundColor: Colors.grey[100],
       // Makes the content scrollable to prevent overflow on smaller screens
       body: SingleChildScrollView(
@@ -111,15 +159,12 @@ class _HomePageState extends State<HomePage> {
 
   // Widget for the top red header section
   Widget _buildHeader() {
-    // Stack allows layering widgets on top of each other (e.g., Quick Donate button over the header)
     return Stack(
-      clipBehavior: Clip
-          .none, // Allows the "Quick Donate" button to overflow the red container
+      clipBehavior: Clip.none,
       alignment: Alignment.topCenter,
       children: [
-        // The main red background container
         Container(
-          height: 225,
+          height: 150,
           decoration: const BoxDecoration(
             color: Colors.red,
             borderRadius: BorderRadius.only(
@@ -128,81 +173,27 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 50, 20, 20),
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisAlignment:
+                  MainAxisAlignment.spaceAround, // Changed to end
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        _authService.signOut();
-                      },
-                      child: Icon(Icons.logout),
-                    ),
-                    Text(
-                      'Hi, $username !',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const Text(
-                      'Your Donations',
-                      style: TextStyle(color: Colors.white70, fontSize: 16),
-                    ),
-                    Text(
-                      donations.toString(),
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 48,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-        // The circular "Quick Donate" button positioned over the header
-        Positioned(
-          top: 70,
-          right: 30,
-          child: Container(
-            width: 110,
-            height: 110,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.3),
-                  spreadRadius: 1,
-                  blurRadius: 5,
-                ),
-              ],
-            ),
-            child: const Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.add, color: Colors.red, size: 40),
                 Text(
-                  'Quick Donate',
-                  style: TextStyle(
-                    color: Colors.red,
+                  'Hi, $username !',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    fontSize: 10,
                   ),
                 ),
+                Text(
+                  'Your Donations $donations',
+                  style: TextStyle(color: Colors.white70, fontSize: 16),
+                ),
               ],
             ),
           ),
         ),
-
-        //Toggle button here
       ],
     );
   }
@@ -397,6 +388,41 @@ class _HomePageState extends State<HomePage> {
 }
 
 // Unused Widgets 
+
+  // The circular "Quick Donate" button positioned over the header
+    // Positioned(
+    //   top: 70,
+    //   right: 30,
+    //   child: Container(
+    //     width: 110,
+    //     height: 110,
+    //     decoration: BoxDecoration(
+    //       color: Colors.white,
+    //       shape: BoxShape.circle,
+    //       boxShadow: [
+    //         BoxShadow(
+    //           color: Colors.black.withOpacity(0.3),
+    //           spreadRadius: 1,
+    //           blurRadius: 5,
+    //         ),
+    //       ],
+    //     ),
+    //     child: const Column(
+    //       mainAxisAlignment: MainAxisAlignment.center,
+    //       children: [
+    //         Icon(Icons.add, color: Colors.red, size: 40),
+    //         Text(
+    //           'Quick Donate',
+    //           style: TextStyle(
+    //             color: Colors.red,
+    //             fontWeight: FontWeight.bold,
+    //             fontSize: 10,
+    //           ),
+    //         ),
+    //       ],
+    //     ),
+    //   ),
+    // ),
 
   // Box shadow for critical alert cards
     // decoration: BoxDecoration(
