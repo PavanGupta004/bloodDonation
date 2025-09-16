@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:sos_blood_donation/database/data_requests.dart';
 import 'package:sos_blood_donation/database/donor_service.dart';
 
@@ -23,25 +24,66 @@ class _SOSRequestPageState extends State<SOSRequestPage> {
   ];
 
   String? selectedBloodGroup;
+  final TextEditingController _locationController = TextEditingController();
   String? selectedLocation;
   String selectedUrgency = 'Immediate';
   int quantity = 1;
   final RequestData _dataRequest = RequestData();
+  double? _latitude;
+  double? _longitude;
 
   @override
   void dispose() {
     // TODO: implement dispose
-    super.dispose();
     selectedBloodGroup = null;
     selectedLocation = null;
     selectedUrgency = 'Immediate';
     quantity = 1;
+    _locationController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _fetchLocation() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Location services are disabled.")),
+      );
+      return;
+    }
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Location permissions are denied.")),
+        );
+        return;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Location permissions are permanently denied."),
+        ),
+      );
+      return;
+    }
+
+    Position position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+    setState(() {
+      _latitude = position.latitude;
+      _longitude = position.longitude;
+      _locationController.text = "${position.latitude}, ${position.longitude}";
+    });
   }
 
   Future<void> submitRequest() async {
-    if (selectedBloodGroup == null ||
-        selectedLocation == null ||
-        selectedLocation!.isEmpty) {
+    if (selectedBloodGroup == null || _locationController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill all required fields')),
       );
@@ -49,9 +91,13 @@ class _SOSRequestPageState extends State<SOSRequestPage> {
     }
 
     try {
-      // Dummy coordinates for now, replace with geocoding later
-      double latitude = 12.9716; // Example: Bangalore
-      double longitude = 77.5946;
+      // 🟢 Parse coordinates from "lat,long" string
+      final parts = selectedLocation!.split(',');
+      if (parts.length != 2) {
+        throw Exception("Invalid location format. Expected: lat,long");
+      }
+      final latitude = double.parse(parts[0].trim());
+      final longitude = double.parse(parts[1].trim());
 
       // 1️⃣ Save request and get requestId
       final docRef = await FirebaseFirestore.instance
@@ -71,8 +117,8 @@ class _SOSRequestPageState extends State<SOSRequestPage> {
       final donorService = DonorService();
       List<Map<String, dynamic>> donors = await donorService.findNearbyDonors(
         docRef.id,
-        10,
-      ); // 10 km range
+        10, // km radius
+      );
 
       if (donors.isEmpty) {
         ScaffoldMessenger.of(
@@ -95,7 +141,7 @@ class _SOSRequestPageState extends State<SOSRequestPage> {
         );
       }
 
-      // 4️⃣ Optionally clear form & pop page
+      // 4️⃣ Reset form
       setState(() {
         selectedBloodGroup = null;
         selectedLocation = null;
@@ -216,29 +262,20 @@ class _SOSRequestPageState extends State<SOSRequestPage> {
                   borderRadius: BorderRadius.circular(30),
                   border: Border.all(color: Colors.grey.shade300),
                 ),
-                child: TextField(
-                  textAlign: TextAlign.center,
-                  onChanged: (value) {
-                    setState(() {
-                      selectedLocation = value;
-                      print('Location changed to: $selectedLocation');
-                    });
-                  },
-                  decoration: InputDecoration(
-                    hintText: 'Hospital/Clinic & City',
-                    hintStyle: TextStyle(
-                      color: Colors.grey.shade400,
-                      fontSize: 16,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: TextFormField(
+                    controller: _locationController,
+                    readOnly: true,
+                    decoration: InputDecoration(
+                      labelText: "Location",
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.my_location),
+                        onPressed: _fetchLocation,
+                      ),
                     ),
-                    border: InputBorder.none,
-                    prefixIcon: const Padding(
-                      padding: EdgeInsets.only(left: 15),
-                      child: Icon(Icons.location_on, color: Colors.red),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 15,
-                    ),
+                    validator: (val) =>
+                        val == null || val.isEmpty ? "Location required" : null,
                   ),
                 ),
               ),
