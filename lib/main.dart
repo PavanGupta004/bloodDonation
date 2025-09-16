@@ -2,6 +2,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:sos_blood_donation/pages/selectSignUp.dart';
 
+import 'pages/homePage.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -21,7 +23,11 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
+<<<<<<< HEAD
       home: SelectSignUp(),
+=======
+      home: HomePage(),
+>>>>>>> e3bcaaaa80c1ffa884eda07a49fa365de032fb9c
     );
   }
 }
