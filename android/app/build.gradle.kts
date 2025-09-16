@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.example.sos_blood_donation"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.sos_blood_donation"

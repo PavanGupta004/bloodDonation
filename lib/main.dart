@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sos_blood_donation/pages/home_page.dart';
+import 'package:sos_blood_donation/pages/sos_request_page.dart';
 import 'pages/selectSignUp.dart';
 
 void main() async {
@@ -21,7 +22,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.redAccent),
       ),
-      home: const HomePage(),
+      home: const SOSRequestPage(),
     );
   }
 }
