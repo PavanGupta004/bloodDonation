@@ -1,29 +1,30 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+//project-328892331271
+class DetailsFormPage extends StatefulWidget {
+  final User user;
+  const DetailsFormPage({super.key, required this.user});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<DetailsFormPage> createState() => _DetailsFormPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _DetailsFormPageState extends State<DetailsFormPage> {
   final _formKey = GlobalKey<FormState>();
 
-  // Controllers
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _dobController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
 
-  // Dropdown values
   String? _selectedType;
   String? _selectedGender;
   String? _selectedBloodType;
 
-  // Blood type options
   final List<String> bloodTypes = [
     'A+',
     'A-',
@@ -34,14 +35,43 @@ class _LoginPageState extends State<LoginPage> {
     'O+',
     'O-',
   ];
-
   final List<String> genders = ['Male', 'Female', 'Other'];
-  final List<String> userTypes = ['Hospital', 'NGO', 'Donor/Requester'];
+  final List<String> userTypes = ['Hospital', 'NGO', 'Donor'];
+
+  @override
+  void initState() {
+    super.initState();
+    _emailController.text = widget.user.email ?? "";
+    _nameController.text = widget.user.displayName ?? "";
+  }
+
+  Future<void> _saveDetails() async {
+    if (_formKey.currentState!.validate()) {
+      await FirebaseFirestore.instance
+          .collection("users")
+          .doc(widget.user.uid)
+          .set({
+            "type": _selectedType,
+            "name": _nameController.text.trim(),
+            "dob": _dobController.text.trim(),
+            "gender": _selectedGender,
+            "location": _locationController.text.trim(),
+            "bloodType": _selectedBloodType,
+            "phone": _phoneController.text.trim(),
+            "email": _emailController.text.trim(),
+            "createdAt": DateTime.now(),
+          });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Details saved successfully ✅")),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Registration Form")),
+      appBar: AppBar(title: const Text("Enter Your Details")),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -49,7 +79,6 @@ class _LoginPageState extends State<LoginPage> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                // Type
                 DropdownButtonFormField<String>(
                   decoration: const InputDecoration(labelText: "Type"),
                   value: _selectedType,
@@ -63,23 +92,12 @@ class _LoginPageState extends State<LoginPage> {
                   validator: (val) =>
                       val == null ? "Please select a type" : null,
                 ),
-
-                // Name
                 TextFormField(
                   controller: _nameController,
                   decoration: const InputDecoration(labelText: "Name"),
-                  validator: (val) {
-                    if (val == null || val.isEmpty) {
-                      return "Name is required";
-                    }
-                    if (val.length < 3) {
-                      return "Name must be at least 3 characters";
-                    }
-                    return null;
-                  },
+                  validator: (val) =>
+                      val == null || val.isEmpty ? "Name is required" : null,
                 ),
-
-                // DOB
                 TextFormField(
                   controller: _dobController,
                   decoration: const InputDecoration(
@@ -87,112 +105,76 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   readOnly: true,
                   onTap: () async {
-                    DateTime? pickedDate = await showDatePicker(
+                    DateTime? picked = await showDatePicker(
                       context: context,
                       initialDate: DateTime(2000),
                       firstDate: DateTime(1900),
                       lastDate: DateTime.now(),
                     );
-                    if (pickedDate != null) {
+                    if (picked != null) {
                       _dobController.text = DateFormat(
                         'dd/MM/yyyy',
-                      ).format(pickedDate);
+                      ).format(picked);
                     }
                   },
-                  validator: (val) {
-                    if (val == null || val.isEmpty) {
-                      return "Date of Birth is required";
-                    }
-                    return null;
-                  },
+                  validator: (val) =>
+                      val == null || val.isEmpty ? "DOB required" : null,
                 ),
-
-                // Gender
                 DropdownButtonFormField<String>(
                   decoration: const InputDecoration(labelText: "Gender"),
                   value: _selectedGender,
                   items: genders
-                      .map(
-                        (gender) => DropdownMenuItem(
-                          value: gender,
-                          child: Text(gender),
-                        ),
-                      )
+                      .map((g) => DropdownMenuItem(value: g, child: Text(g)))
                       .toList(),
                   onChanged: (val) => setState(() => _selectedGender = val),
                   validator: (val) =>
                       val == null ? "Please select gender" : null,
                 ),
-
-                // Location
                 TextFormField(
                   controller: _locationController,
                   decoration: const InputDecoration(labelText: "Location"),
-                  validator: (val) => val == null || val.isEmpty
-                      ? "Location is required"
-                      : null,
+                  validator: (val) =>
+                      val == null || val.isEmpty ? "Location required" : null,
                 ),
-
-                // Blood Type
                 DropdownButtonFormField<String>(
                   decoration: const InputDecoration(labelText: "Blood Type"),
                   value: _selectedBloodType,
                   items: bloodTypes
-                      .map(
-                        (blood) =>
-                            DropdownMenuItem(value: blood, child: Text(blood)),
-                      )
+                      .map((b) => DropdownMenuItem(value: b, child: Text(b)))
                       .toList(),
                   onChanged: (val) => setState(() => _selectedBloodType = val),
                   validator: (val) =>
                       val == null ? "Please select blood type" : null,
                 ),
-
-                // Phone
                 TextFormField(
                   controller: _phoneController,
                   decoration: const InputDecoration(labelText: "Phone Number"),
                   keyboardType: TextInputType.phone,
                   validator: (val) {
-                    if (val == null || val.isEmpty) {
-                      return "Phone number is required";
-                    }
+                    if (val == null || val.isEmpty) return "Phone required";
                     if (!RegExp(r'^[0-9]{10}$').hasMatch(val)) {
-                      return "Enter valid 10-digit phone number";
+                      return "Enter valid 10-digit phone";
                     }
                     return null;
                   },
                 ),
-
-                // Email
                 TextFormField(
                   controller: _emailController,
                   decoration: const InputDecoration(labelText: "Email"),
-                  keyboardType: TextInputType.emailAddress,
                   validator: (val) {
-                    if (val == null || val.isEmpty) {
-                      return "Email is required";
-                    }
+                    if (val == null || val.isEmpty) return "Email required";
                     if (!RegExp(
                       r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
                     ).hasMatch(val)) {
-                      return "Enter a valid email address";
+                      return "Enter valid email";
                     }
                     return null;
                   },
                 ),
-
                 const SizedBox(height: 20),
-
                 ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Form Submitted ✅")),
-                      );
-                    }
-                  },
-                  child: const Text("Submit"),
+                  onPressed: _saveDetails,
+                  child: const Text("Save Details"),
                 ),
               ],
             ),
