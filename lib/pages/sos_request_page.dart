@@ -92,12 +92,17 @@ class _SOSRequestPageState extends State<SOSRequestPage> {
 
     try {
       // 🟢 Parse coordinates from "lat,long" string
-      final parts = selectedLocation!.split(',');
+      final parts = _locationController.text.split(',');
       if (parts.length != 2) {
         throw Exception("Invalid location format. Expected: lat,long");
       }
-      final latitude = double.parse(parts[0].trim());
-      final longitude = double.parse(parts[1].trim());
+
+      final latitude = double.tryParse(parts[0].trim());
+      final longitude = double.tryParse(parts[1].trim());
+
+      if (latitude == null || longitude == null) {
+        throw Exception("Failed to parse latitude/longitude");
+      }
 
       // 1️⃣ Save request and get requestId
       final docRef = await FirebaseFirestore.instance
@@ -132,7 +137,7 @@ class _SOSRequestPageState extends State<SOSRequestPage> {
 
           // 3️⃣ Example: open SMS app (needs url_launcher)
           // await launchUrl(Uri.parse(
-          //   "sms:${donor['phone']}?body=Urgent! Blood $selectedBloodGroup needed at $selectedLocation. Please help if possible.",
+          //   "sms:${donor['phone']}?body=Urgent! Blood $selectedBloodGroup needed at $_locationController.text. Please help if possible.",
           // ));
         }
 
@@ -144,7 +149,7 @@ class _SOSRequestPageState extends State<SOSRequestPage> {
       // 4️⃣ Reset form
       setState(() {
         selectedBloodGroup = null;
-        selectedLocation = null;
+        _locationController.clear();
         selectedUrgency = 'Immediate';
         quantity = 1;
       });

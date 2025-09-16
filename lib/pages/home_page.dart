@@ -4,6 +4,7 @@ import 'package:curved_labeled_navigation_bar/curved_navigation_bar_item.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:sos_blood_donation/database/update_details.dart';
+import 'package:sos_blood_donation/pages/allRequestList.dart';
 import 'package:sos_blood_donation/pages/sos_request_page.dart';
 import 'package:sos_blood_donation/services/auth_services.dart';
 
@@ -240,26 +241,8 @@ class _HomePageState extends State<HomePage> {
               ),
             ],
           ),
-          const Text(
-            'Urgent SOS Alerts',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-
           // First alert card (not critical)
-          _buildAlertCard(
-            bloodType: 'A+ Blood Needed',
-            hospital: 'City General Hospital',
-            distance: '1.2 km away',
-            isCritical: false,
-          ),
-
-          // Second alert card (not critical)
-          _buildAlertCard(
-            bloodType: 'B- Blood Needed',
-            hospital: 'City General Hospital',
-            distance: '1.2 km away',
-            isCritical: true,
-          ),
+          Container(height: 500, child: RequestsPage()),
         ],
       ),
     );
