@@ -25,25 +25,24 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'SOS Blood Donation',
       theme: ThemeData(primarySwatch: Colors.red),
-      home: SelectSignUp(),
-      // StreamBuilder<User?>(
-      //   stream: FirebaseAuth.instance.authStateChanges(),
-      //   builder: (context, snapshot) {
-      //     if (snapshot.connectionState == ConnectionState.waiting) {
-      //       return const Scaffold(
-      //         body: Center(child: CircularProgressIndicator()),
-      //       );
-      //     }
+      home: StreamBuilder<User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
+          }
 
-      //     if (snapshot.hasData) {
-      //       // User is logged in → go to HomePage
-      //       return const HomePage();
-      //     } else {
-      //       // User not logged in → go to signup/login selection
-      //       return const SelectSignUp();
-      //     }
-      //   },
-      // ),
+          if (snapshot.hasData) {
+            // User is logged in → go to HomePage
+            return const HomePage();
+          } else {
+            // User not logged in → go to signup/login selection
+            return const SelectSignUp();
+          }
+        },
+      ),
     );
   }
 }

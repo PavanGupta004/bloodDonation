@@ -52,7 +52,8 @@ class _RequestsPageState extends State<RequestsPage> {
     try {
       QuerySnapshot snapshot = await FirebaseFirestore.instance
           .collection('requests')
-          .orderBy('requestDateTime', descending: true) // Recent first
+          .where('requestFulfilled', isEqualTo: false) // Only active requests
+          .orderBy('requestDateTime', descending: true)
           .get();
 
       List<Map<String, dynamic>> requestsWithUserData = [];
@@ -226,7 +227,7 @@ class _RequestsPageState extends State<RequestsPage> {
                 children: [
                   Icon(Icons.inbox, size: 48, color: Colors.grey),
                   SizedBox(height: 16),
-                  Text('No requests found'),
+                  Text('No Current requests found'),
                 ],
               ),
             );

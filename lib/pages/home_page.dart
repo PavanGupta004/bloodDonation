@@ -21,6 +21,7 @@ class _HomePageState extends State<HomePage> {
   final AuthService _authService = AuthService();
   bool isAvailable = false;
   final UpdateData _updateData = UpdateData();
+  int totalDonation = 0;
 
   int donations = 7;
   int _selectedIndex = 0;
@@ -29,12 +30,24 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _fetchCurrentStatus();
+    _getTotalDonation();
   }
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
+  }
+
+  Future<void> _getTotalDonation() async {
+    final userUid = FirebaseAuth.instance.currentUser?.uid;
+
+    QuerySnapshot snapshot = await FirebaseFirestore.instance
+        .collection('requests')
+        .where('donatedBy', isEqualTo: userUid) // use isEqualTo for string
+        .get();
+
+    totalDonation = snapshot.docs.length;
   }
 
   void _fetchCurrentStatus() async {
@@ -47,6 +60,7 @@ class _HomePageState extends State<HomePage> {
         .get();
     setState(() {
       isAvailable = doc.data()?['isAvailableForDonating'] ?? false;
+      username = doc.data()?['name'] ?? 'User';
     });
   }
 
@@ -99,14 +113,6 @@ class _HomePageState extends State<HomePage> {
                         HistoryPage(), // Navigate to HistoryPage(
                   ),
                 );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.request_page),
-              title: const Text('Current Request'),
-              onTap: () {
-                print('pressed Current Request');
-                Navigator.pop(context);
               },
             ),
             ListTile(
@@ -194,7 +200,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 Text(
-                  'Your Donations $donations',
+                  'Your Donations: $totalDonation',
                   style: TextStyle(color: Colors.white70, fontSize: 16),
                 ),
               ],
