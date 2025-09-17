@@ -25,6 +25,17 @@ class RequestData {
     return null; // user not found in any collection
   }
 
+  Future<Map<String, dynamic>?> getUserDataByUid(String uid) async {
+    final collections = ['users', 'hospital', 'ngo'];
+    for (String collection in collections) {
+      final doc = await _firestore.collection(collection).doc(uid).get();
+      if (doc.exists) {
+        return doc.data();
+      }
+    }
+    return null;
+  }
+
   //Push Request to Firebase
   Future<void> pushRequest({
     required String? bloodType,
@@ -59,7 +70,7 @@ class RequestData {
         "requestDateTime": FieldValue.serverTimestamp(),
         "requestFulfilled": false,
         "requestFulfilledAt": null,
-        "donatedBy": null,
+        "donatedBy": "", // instead of null or []
       };
 
       await _firestore.collection('requests').doc(requestId).set(data);
@@ -99,8 +110,7 @@ class RequestData {
     try {
       QuerySnapshot snapshot = await _firestore
           .collection('requests')
-          .where('donatedBy', arrayContains: userUid)
-          .orderBy('requestFulfilledAt', descending: true)
+          .where('donatedBy', isEqualTo: userUid) // use isEqualTo for string
           .get();
 
       List<Map<String, dynamic>> history = snapshot.docs.map((doc) {
@@ -121,7 +131,6 @@ class RequestData {
       QuerySnapshot snapshot = await _firestore
           .collection('requests')
           .where('requestFrom', isEqualTo: userUid)
-          .orderBy('requestDateTime', descending: true)
           .get();
 
       List<Map<String, dynamic>> history = snapshot.docs.map((doc) {
@@ -167,7 +176,7 @@ class RequestData {
           .collection('requests')
           .doc(requestId)
           .update({
-            'donatedBy': FieldValue.arrayUnion([user.uid]), // list
+            'donatedBy': user.uid, // string, not array
             'requestFulfilledAt': FieldValue.serverTimestamp(),
             'requestFulfilled': true,
           });

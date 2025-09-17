@@ -49,12 +49,27 @@ class _HistoryPageState extends State<HistoryPage> {
                   itemCount: history.length,
                   itemBuilder: (context, index) {
                     final item = history[index];
-                    return ListTile(
-                      title: Text('Blood Type: ${item['bloodType'] ?? 'N/A'}'),
-                      subtitle: Text('Quantity: ${item['quantity'] ?? 'N/A'}'),
-                      trailing: Text(
-                        item['requestFulfilledAt']?.toDate().toString() ?? '',
-                      ),
+                    final donatedByUid = item['donatedBy'];
+                    return FutureBuilder<Map<String, dynamic>?>(
+                      future: _requestData.getUserDataByUid(donatedByUid),
+                      builder: (context, userSnapshot) {
+                        String donorName = 'Unknown';
+                        if (userSnapshot.hasData && userSnapshot.data != null) {
+                          donorName = userSnapshot.data!['name'] ?? 'Unknown';
+                        }
+                        return ListTile(
+                          title: Text(
+                            'Blood Type: ${item['bloodType'] ?? 'N/A'}',
+                          ),
+                          subtitle: Text(
+                            'Quantity: ${item['quantity'] ?? 'N/A'}\nDonor: $donorName',
+                          ),
+                          trailing: Text(
+                            item['requestFulfilledAt']?.toDate().toString() ??
+                                '',
+                          ),
+                        );
+                      },
                     );
                   },
                 );
@@ -82,11 +97,16 @@ class _HistoryPageState extends State<HistoryPage> {
                   itemCount: history.length,
                   itemBuilder: (context, index) {
                     final item = history[index];
+                    final fulfilled = item['requestFulfilled'] == true;
                     return ListTile(
                       title: Text('Blood Type: ${item['bloodType'] ?? 'N/A'}'),
                       subtitle: Text('Quantity: ${item['quantity'] ?? 'N/A'}'),
                       trailing: Text(
-                        item['requestDateTime']?.toDate().toString() ?? '',
+                        fulfilled ? 'Fulfilled' : 'Not yet',
+                        style: TextStyle(
+                          color: fulfilled ? Colors.green : Colors.red,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     );
                   },
